@@ -1,0 +1,9 @@
+### Chat Completion
+POST http://localhost:5000/api/openai/chat HTTP/1.1
+Content-Type: application/json
+
+{
+    "model": "gpt-5-nano",
+    "input": "Explain the theory of relativity in simple terms.",
+    "store": true
+}
