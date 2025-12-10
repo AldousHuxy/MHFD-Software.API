@@ -1,12 +1,12 @@
 {
-  "name": "modelcontextprotocol.sdk",
+  "name": "mhfd-software.api",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
   "scripts": {
-    "dev": "nodemon -r dotenv/config src/server.ts",
-    "start": "node -r dotenv/config dist/server.js",
-    "build": "npm install && npm install --save-dev @types/node && tsc -p ."
+    "dev": "nodemon -r dotenv/config ./src/server.ts",
+    "build": "npm install && tsc -p .",
+    "start": "node -r dotenv/config ./dist/server.js"
   },
   "keywords": [],
   "author": "",
