@@ -5,8 +5,8 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon -r dotenv/config ./src/server.ts",
-    "build": "npm install && tsc -p .",
-    "start": "node -r dotenv/config ./dist/server.js"
+    "start": "node -r dotenv/config ./dist/server.js",
+    "build": "npm ci && tsc -p ."
   },
   "keywords": [],
   "author": "",
