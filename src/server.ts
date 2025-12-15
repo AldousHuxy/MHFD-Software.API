@@ -4,6 +4,9 @@ import { logger } from './middleware/loggerMiddleware';
 import { errorHandler } from './middleware/errorMiddleware';
 import { router as openAIRoutes } from './routes/openAIRoutes';
 import cors from 'cors';
+import { config } from 'dotenv';
+
+config();
 
 const app: Application = express();
 
