@@ -4,7 +4,7 @@ dotenv.config();
 
 export const NODE_ENV: string = process.env.NODE_ENV!;
 export const PORT: number = Number(process.env.PORT!);
-export const CLIENT_URL: string = NODE_ENV === 'production' ? process.env.CLIENT_URL! : 'https://aldoushuxy.github.io';
+export const CLIENT_URL: string = NODE_ENV === 'production' ? process.env.CLIENT_URL! : 'http://localhost:2000';
 export const OPENAI_API_KEY: string = process.env.OPENAI_API_KEY!;
 
 console.log(`Environment: ${NODE_ENV}`);

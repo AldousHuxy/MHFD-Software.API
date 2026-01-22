@@ -13,7 +13,7 @@ const app: Application = express();
 
 app.use(json());
 app.use(urlencoded({ extended: true }));
-app.use(cors({ origin: CLIENT_URL }));
+app.use(cors({ origin: '*' }));
 app.use(logger);
 
 app.get('/', (req: Request, res: Response) => res.status(200).json(`Success: ${new Date().toISOString()}`));
