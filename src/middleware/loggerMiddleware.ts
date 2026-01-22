@@ -16,6 +16,6 @@ type MethodColor = keyof typeof METHOD_COLORS
 export const logger = (req: Request, res: Response, next: NextFunction) => {
     const color = METHOD_COLORS[req.method as MethodColor] || METHOD_COLORS.DEFAULT;
 
-    log(colors[color](`${req.protocol}://${req.get('host')}${req.originalUrl} ${new Date().toISOString()}`))
+    log(colors[color](`${req.method} ${req.protocol}://${req.get('host')}${req.originalUrl} ${new Date().toISOString()}`))
     next()
 }

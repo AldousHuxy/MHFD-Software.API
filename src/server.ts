@@ -2,9 +2,10 @@ import express, { Application, Request, Response, json, urlencoded } from 'expre
 import { CLIENT_URL, PORT } from './env';
 import { logger } from './middleware/loggerMiddleware';
 import { errorHandler } from './middleware/errorMiddleware';
-import { router as openAIRoutes } from './routes/openAIRoutes';
 import cors from 'cors';
 import { config } from 'dotenv';
+import { router as openAIRoutes } from './routes/openAIRoutes';
+import { router as caseRoutes } from './routes/caseRoutes';
 
 config();
 
@@ -19,6 +20,7 @@ app.get('/', (req: Request, res: Response) => res.status(200).json(`Success: ${n
 app.get('/api', (req: Request, res: Response) => res.status(200).json('Welcome to the LOMC Chatbot API!'));
 
 app.use('/api/openai', openAIRoutes);
+app.use('/api/cases', caseRoutes);
 
 app.use(errorHandler);
 

@@ -1,0 +1,2 @@
+### Get Cases
+GET http://localhost:5000/api/cases HTTP/1.1
