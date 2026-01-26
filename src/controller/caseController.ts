@@ -11,20 +11,7 @@ import path from 'path';
 export const getAllCases: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
     const files = await fs.readdir('./src/data');
     
-    const cases = await Promise.all(files.map(async file => {
-        const parser = new PDFParse({ url: path.join('./src/data', file) });
-
-        const { text } = await parser.getText();
-
-        const report = parseReport(text);
-
-        return {
-            filename: file,
-            report,
-        };
-    }))
-
-    res.status(200).json(cases);
+    res.status(200).json(files);
 });
 
 // @desc    Get Cases By Filename

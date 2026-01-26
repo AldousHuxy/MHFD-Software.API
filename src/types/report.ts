@@ -10,11 +10,11 @@ export const reportSchema = z.object({
     workGroup: z.string(),
     status: z.string(),
     organization: z.string(),
-    city: z.string(),
-    communityId: z.string(),
-    region: z.string(),
-    county: z.string(),
-    correspondence: z.array(z.string()),
+    cities: z.array(z.string()),
+    communityIds: z.array(z.string()),
+    counties: z.array(z.string()),
 });
 
-export type Report = z.infer<typeof reportSchema>;
+export type Report = z.infer<typeof reportSchema> & {
+    correspondence: Record<string, string>;
+};

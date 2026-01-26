@@ -1,12 +1,12 @@
 import type { Report } from '../types/report';
-import { cleanCity } from './cleanCity';
+import parseCorrespondence from './parseCorrespondence';
 
 export const parseReport = (text: string): Report[] => {
     let currentPage: string[] = [];
     const textArray: string[] = text.split('\n').filter(line => line !== '');
     const pages: string[][] = [];
     const projects: Report[] = [];
-    let correspondence: any[] = [];
+    let correspondence: Record<string, string> = {};
     
     for (let i = 0; i < textArray.length; i++) {
         const line = textArray[i];
@@ -33,16 +33,30 @@ export const parseReport = (text: string): Report[] => {
         const existingProject = projects.find(p => p.projectId === projectName?.trim() && p.caseNum === caseNo?.trim());
         
         if (!existingProject) {
-            const isCorrespondence = page.includes('Correspondence Information');
+            const hasCorrespondence = page.includes('Correspondence Information');
             const [lomcType, date] = page[2]?.split('\t') || ['', ''];
             const dueDateLine = page[3]?.includes(' Projected Due Date:') ? page[3]?.replace(' Projected Due Date:', '').split(' ') : undefined;
             const [group, projectStatus] = page[6]?.split(' Project Status: ') || ['', ''];
             const orgLine = page[7];
-            const [projectCity, communityIdentifier, county] = page[11]?.split('\t') || ['', '', ''];
-            const [community, region] = communityIdentifier?.split(' CO ') || ['', ''];
-            const [projectCity2, communityIdentifier2, county2] = page[10]?.split('\t') || ['', '', ''];
-            const [community2, region2] = communityIdentifier2?.split(' CO ') || ['', ''];
-            if (isCorrespondence) {
+            const communityInfoIndex = page.findIndex(line => line.includes('Community Information'));
+            const floodSourceIndex = page.findIndex(line => line.includes('Flood Source Information'));
+            const rawCommunityInfo = page.slice(communityInfoIndex + 2, floodSourceIndex);
+            const parsedCommunityInfo = rawCommunityInfo.map(line => line.split('\t')
+                .map(part => part.replace(', CITY OF', '')
+                .replace(', CITY AND COUNTY OF', '')
+                .replace('County', '')
+                .replace('*', '')
+                .replace('CO 8', '').trim()));
+
+            // change all cities to lowercase then capitalize first letter of each word
+            const cities: string[] = parsedCommunityInfo.map(info => info[0]?.toLowerCase().replace(/\b\w/g, char => char.toUpperCase()) || '');
+            const communityIds: string[] = parsedCommunityInfo.map(info => info[1] || '');
+            const counties: string[] = parsedCommunityInfo.map(info => info[2] || '');
+            // get unique counties only
+            const uniqueCounties = Array.from(new Set(counties));
+
+
+            if (hasCorrespondence) {
                 const correspondenceIndex = page.findIndex(line => line.includes('Correspondence Information'));
                 const additionalDataRequestsIndex = page.findIndex(line => line.includes('Additional Data Requests'));
                 const rawCorrespondenceInfo = page.slice(correspondenceIndex + 2, additionalDataRequestsIndex);
@@ -72,37 +86,7 @@ export const parseReport = (text: string): Report[] => {
                     return true;
                 });
 
-                const finalCorrespondenceInfo: string[] = [];
-
-                for (let i = 0; i < correspondenceInfo.length; i++) {
-                    const line = correspondenceInfo[i];
-
-                    if (line?.includes('All Data Received')) {
-                        const allDataReceived = line.replace('All Data Received', '').trim();
-
-                        finalCorrespondenceInfo.push(allDataReceived);
-                    }
-
-                    if (line?.includes('Request for Additional Data')) {
-                        const additionalDataRequest = line;
-
-                        finalCorrespondenceInfo.push(additionalDataRequest);
-                    }
-
-                    if (line?.includes('Acknowledge receipt of request/all data')) {
-                        const acknowledgement = correspondenceInfo[i + 2] || '';
-
-                        finalCorrespondenceInfo.push(acknowledgement);
-                    }
-
-                    if (line?.includes('Determination letter to FEMA')) {
-                        const determination = line.replace('Determination letter to FEMA ', '');
-
-                        finalCorrespondenceInfo.push(determination);
-                    }
-                }
-
-                 correspondence = finalCorrespondenceInfo;
+                correspondence = parseCorrespondence(correspondenceInfo);
             }
             let projectDueDate = '';
             if (dueDateLine) {
@@ -123,10 +107,9 @@ export const parseReport = (text: string): Report[] => {
                 workGroup: group?.replace('Project Work Group: ', '') || '',
                 status: projectStatus || '',
                 organization: orgLine?.replace('Organization Name: ', '') || '',
-                city: projectCity === 'Flood Source Information' ? cleanCity(projectCity2) || '' : cleanCity(projectCity) || '',
-                communityId: community || community2 || '',
-                region: region || region2 || '',
-                county: county?.replace(' County', '') || county2?.replace(' County', '') || '',
+                cities,
+                communityIds,
+                counties: uniqueCounties,
                 correspondence,
             });
 
